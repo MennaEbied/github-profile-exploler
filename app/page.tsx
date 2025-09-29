@@ -1,103 +1,107 @@
-import Image from "next/image";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+'use client';
+
+import React, { useState } from 'react';
+import SearchForm from '@/components/SearchForm';
+import UserProfileCard from '@/components/UserProfileCard';
+import RepoList from '@/components/RepoList';
+import NotesSection from '@/components/NotesSection';
+import AiSummary from '@/components/AiSummary';
+
+interface Repository {
+  id: number;
+  name: string;
+  description: string | null;
+  stargazers_count: number;
+  language: string | null;
+  html_url: string;
+}
+
+interface UserProfile {
+  login: string;
+  name: string | null;
+  avatar_url: string;
+  bio: string | null;
+  public_repos: number;
+  followers: number;
+  following: number;
+  html_url: string;
+}
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [repos, setRepos] = useState<Repository[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+  const handleSearch = async (username: string) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // Fetch user profile
+      const userResponse = await fetch(`https://api.github.com/users/${username}`);
+      if (!userResponse.ok) {
+        if (userResponse.status === 404) {
+          throw new Error('User not found');
+        }
+        throw new Error('Failed to fetch user data');
+      }
+      const userData: UserProfile = await userResponse.json();
+      setUser(userData);
+
+      // Fetch user repositories
+      const reposResponse = await fetch(`https://api.github.com/users/${username}/repos`);
+      if (!reposResponse.ok) {
+        throw new Error('Failed to fetch repositories');
+      }
+      const reposDataFromAPI = await reposResponse.json();
+      const reposData: Repository[] = reposDataFromAPI.map((repo: any) => ({
+        id: repo.id,
+        name: repo.name,
+        description: repo.description,
+        stargazers_count: repo.stargazers_count,
+        language: repo.language,
+        html_url: repo.html_url
+      }));
+      setRepos(reposData);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An unknown error occurred');
+      setUser(null);
+      setRepos([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-white py-8">
+      <div className="max-w-4xl mx-auto px-4">
+        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">GitHub Profile Explorer</h1>
+        
+        <SearchForm onSearch={handleSearch} loading={loading} />
+        
+        {error && (
+          <div className="mt-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+            {error}
+          </div>
+        )}
+        
+        {loading && (
+          <div className="mt-6 text-center">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-500"></div>
+          </div>
+        )}
+        
+        {user && !loading && (
+          <>
+            <UserProfileCard user={user} />
+            <NotesSection username={user.login} />
+            <AiSummary user={user} repos={repos} />
+            <RepoList repos={repos} />
+          </>
+        )}
+      </div>
     </div>
   );
 }
