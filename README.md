@@ -2,6 +2,7 @@
 
 A Next.js + TypeScript app to explore GitHub users and their repositories. Users can view profile details, browse repos, compare users, add notes, and more.
 
+# Live Demo : https://github-profile-exploler.vercel.app
 ---
 
 ## 🚀 Features
@@ -40,6 +41,3 @@ A Next.js + TypeScript app to explore GitHub users and their repositories. Users
 3. **Start development server**
    ```bash
    npm run dev
-
-  
-
