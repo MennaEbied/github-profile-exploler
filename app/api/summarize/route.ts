@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
     const languages = repos
       .filter((repo: any) => repo.language)
       .map((repo: any) => repo.language)
-      .filter((lang: string, index, arr) => arr.indexOf(lang) === index) 
+      .filter((lang: string, index: number, arr: string[]) => arr.indexOf(lang) === index) 
       .slice(0, 3) // limit to first 3
       .join(', ') || 'various technologies';
       
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     console.error('Error generating AI summary:', error);
-        const fallbackSummary = `This user has ${user?.public_repos || 0} public repositories with ${user?.followers || 0} followers. Their profile shows activity in various projects, contributing to the open-source community with diverse technologies and programming languages. The user maintains an active presence on GitHub with regular contributions to their repositories.`;
+        const fallbackSummary = `This user has public repositories with followers. Their profile shows activity in various projects, contributing to the open-source community with diverse technologies and programming languages. The user maintains an active presence on GitHub with regular contributions to their repositories.`;
     
     return new Response(
       JSON.stringify({ 
