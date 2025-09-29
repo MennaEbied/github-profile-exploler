@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
     const languages = repos
       .filter((repo: any) => repo.language)
       .map((repo: any) => repo.language)
-      .filter((lang, index, arr) => arr.indexOf(lang) === index) 
+      .filter((lang: string, index, arr) => arr.indexOf(lang) === index) 
       .slice(0, 3) // limit to first 3
       .join(', ') || 'various technologies';
       
