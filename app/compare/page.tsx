@@ -114,8 +114,6 @@ export default function ComparePage() {
         html_url: repo.html_url,
         forks_count: repo.forks_count
       }));
-
-      // Calculate aggregate metrics
       const totalstargazers1 = repos1.reduce((acc, repo) => acc + repo.stargazers_count, 0);
       const totalForks1 = repos1.reduce((acc, repo) => acc + (repo.forks_count || 0), 0);
       const avgstargazers1 = repos1.length > 0 ? totalstargazers1 / repos1.length : 0;

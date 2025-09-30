@@ -34,7 +34,6 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error generating AI summary:', error);
         const fallbackSummary = `This user has public repositories with followers. Their profile shows activity in various projects, contributing to the open-source community with diverse technologies and programming languages. The user maintains an active presence on GitHub with regular contributions to their repositories.`;
-    
     return new Response(
       JSON.stringify({ 
         summary: fallbackSummary
