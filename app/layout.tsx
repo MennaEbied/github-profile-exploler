@@ -1,5 +1,11 @@
 import Link from 'next/link';
 import './globals.css';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata ={
+  title: "GitHub Profile Explorer",
+  description: "Description for GitHub Profile Explorer "
+};
 
 export default function RootLayout({
   children,
